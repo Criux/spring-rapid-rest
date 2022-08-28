@@ -17,6 +17,42 @@ endpoints to function.
 
 ## Example
 
+You can find the required classes for an example entity *Car* in package [example/car](src/main/java/com/kmarinos/springrapidrest/example/car).
+On startup some entities with dummy values are persisted to the database so that the endpoints don't return empty values (see [InitExample.java](src/main/java/com/kmarinos/springrapidrest/example/InitExample.java)).
+For pre-configured examples run the [postman collection](postman_collection.json).
+
+### The Entity [Car.java](src/main/java/com/kmarinos/springrapidrest/example/car/Car.java)
+
+```java
+public class Car extends TrackedEntity {
+     
+    String color;
+    String model;
+    String manufacturer;
+    Double weight;
+    Integer year;
+        
+}
+```
+
+
+### Generated tables
+<p align="center"><img src="docs/images/er.png" alt="generated tables"></p>
+
+### Generated Endpoints
+|                   Http Method                    | URL                                           | Description           |
+|:------------------------------------------------:|-----------------------------------------------|-----------------------|
+|  <span style="color:forestGreen">**GET**</span>  | http://localhost:8080/api/v1/cars             | Get All Cars          |
+|  <span style="color:forestGreen">**GET**</span>  | http://localhost:8080/api/v1/car/{id}         | Get a single Car      |
+|  <span style="color:forestGreen">**GET**</span>  | http://localhost:8080/api/v1/car/{id}/history | Get changes for a Car |
+|  <span style="color:darkOrange">**POST**</span>  | http://localhost:8080/api/v1/car/             | Create a Car          |
+| <span style="color:darkSlateBlue">**PUT**</span> | http://localhost:8080/api/v1/car/{id}         | Update a Car          |
+|  <span style="color:darkRed">**DELETE**</span>   | http://localhost:8080/api/v1/car/{id}         | Delete a Car          |
+
+
+
+## How to use
+
 ### Created Entity
 
 ### Created Repository
@@ -25,7 +61,6 @@ endpoints to function.
 
 ### Generated Endpoints
 
-## How to use
 
 ## Licence
 [MIT](https://choosealicense.com/licenses/mit/)
