@@ -1,3 +1,9 @@
+<style>
+  .purple {
+    color:rgb(107,79,187);
+  }
+</style>
+
 # Spring Rapid REST
 
 [![Version](https://img.shields.io/badge/Version-v0.0.1-blue.svg?style=for-the-badge)](https://shields.io/)
@@ -49,7 +55,9 @@ public class Car extends TrackedEntity {
 | <span style="color:darkSlateBlue">**PUT**</span> | http://localhost:8080/api/v1/car/{id}         | Update a Car          |
 |  <span style="color:darkRed">**DELETE**</span>   | http://localhost:8080/api/v1/car/{id}         | Delete a Car          |
 
-
+$$\textcolor{yellow}{\text{Hello World}}$$
+sup
+{: .purple}
 
 ## How to use
 
