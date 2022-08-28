@@ -56,7 +56,7 @@ public abstract class TrackedEntityHistory<R extends TrackedEntity>{
     }
 
     public void setValue(String name, Object value) {
-        internalEntityValues.put(name ,value.toString());
+        internalEntityValues.put(name ,value);
         try {
             PropertyUtils.setProperty(this,name,value);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

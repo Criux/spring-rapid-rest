@@ -35,6 +35,7 @@ public abstract class AbstractEntityController<T extends TrackedEntity> {
     protected final EntityHistoryDAO<T> entityHistoryDAO;
     private final RequestMappingHandlerMapping requestMappingHandlerMapping;
     private RequestMappingInfo.BuilderConfiguration requestMappingOptions;
+    protected Class<T> entityClass;
 
     protected AbstractEntityController(TrackedEntityHistoryRepository<T> trackedEntityHistoryRepository,
                                        EntityDAO<T> entityDAO, EntityHistoryDAO<T> entityHistoryDAO,
@@ -43,6 +44,13 @@ public abstract class AbstractEntityController<T extends TrackedEntity> {
         this.entityDAO = entityDAO;
         this.entityHistoryDAO = entityHistoryDAO;
         this.requestMappingHandlerMapping = requestMappingHandlerMapping;
+        try{
+            entityClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass())
+                .getActualTypeArguments()[0];
+
+        }catch (ClassCastException ex){
+            entityClass= (Class<T>) TrackedEntity.class;
+        }
 
     }
 
@@ -50,20 +58,14 @@ public abstract class AbstractEntityController<T extends TrackedEntity> {
     public void init() throws NoSuchMethodException {
         requestMappingOptions = new RequestMappingInfo.BuilderConfiguration();
         requestMappingOptions.setPatternParser(new PathPatternParser());
-        var rootPathService = this.findEntityPath("service");
-        var rootPathConnector = this.findEntityPath("connector");
+        var rootPathService = this.findEntityPath("");
 
         registerMapping(rootPathService + "s", RequestMethod.GET, this.getClass().getMethod("getAllEntitiesWithOptionalSearch", String.class));
         registerMapping(rootPathService + "/{id}", RequestMethod.GET, this.getClass().getMethod("getEntityWithId", String.class));
         registerMapping(rootPathService + "/{id}/history", RequestMethod.GET, this.getClass().getMethod("getSingleEntityHistory", String.class));
-
-        registerMapping(rootPathConnector + "s", RequestMethod.GET, this.getClass().getMethod("getAllEntitiesWithOptionalSearch", String.class));
-        registerMapping(rootPathConnector + "/{id}", RequestMethod.GET, this.getClass().getMethod("getEntityWithId", String.class));
-        registerMapping(rootPathConnector + "/{id}/history", RequestMethod.GET, this.getClass().getMethod("getSingleEntityHistory", String.class));
-        registerMapping(rootPathConnector + "", RequestMethod.POST, this.getClass().getMethod("createEntity", EntityHistoryChangeRequest.class));
-        registerMapping(rootPathConnector + "/batch", RequestMethod.POST, this.getClass().getMethod("createEntityBatch", List.class));
-        registerMapping(rootPathConnector + "/{id}", RequestMethod.PUT, this.getClass().getMethod("updateEntity", EntityHistoryChangeRequest.class, String.class));
-        registerMapping(rootPathConnector + "/{id}", RequestMethod.DELETE, this.getClass().getMethod("deleteEntity", String.class));
+        registerMapping(rootPathService + "", RequestMethod.POST, this.getClass().getMethod("createEntity", EntityHistoryChangeRequest.class));
+        registerMapping(rootPathService + "/{id}", RequestMethod.PUT, this.getClass().getMethod("updateEntity", EntityHistoryChangeRequest.class, String.class));
+        registerMapping(rootPathService + "/{id}", RequestMethod.DELETE, this.getClass().getMethod("deleteEntity", String.class));
     }
 
     public abstract Function<String, List<T>> handleFetchAllEntities();
@@ -87,10 +89,6 @@ public abstract class AbstractEntityController<T extends TrackedEntity> {
         return processChangeRequest(changeHistory, entityHistoryDAO::POST);
     }
 
-    public List<ChangeResponse<EntityGET<T>>> createEntityBatch(@RequestBody List<EntityHistoryChangeRequest<T>> changeHistoryList) {
-        return changeHistoryList.stream().map(h -> processChangeRequest(h, entityHistoryDAO::POST)).map(ChangeResponse::OK).collect(Collectors.toList());
-    }
-
     public EntityGET<T> updateEntity(@RequestBody EntityHistoryChangeRequest<T> changeHistory, @PathVariable("id") String id) {
         var entity = handleFetchEntityWithId().apply(id);
         return processChangeRequest(changeHistory, entity, entityHistoryDAO::PUT);
@@ -110,8 +108,6 @@ public abstract class AbstractEntityController<T extends TrackedEntity> {
     protected EntityGET<T> processChangeRequest(EntityHistoryChangeRequest<T> changeHistory, T forEntity,
                                                 Function<EntityHistoryChangeRequest<T>, TrackedEntityHistory<T>> converter) {
         if (forEntity == null) {
-            Class<T> entityClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass())
-                    .getActualTypeArguments()[0];
             changeHistory.setHistory(EntityHistoryFactory.forEntity(entityClass));
         } else {
             changeHistory.setHistory(EntityHistoryFactory.forEntity(forEntity));
@@ -135,7 +131,9 @@ public abstract class AbstractEntityController<T extends TrackedEntity> {
                 entityRootPath += "/";
             }
         }
-        entityRootPath+=controllerType+"/";
+        if(controllerType!=null&&!controllerType.isEmpty()){
+            entityRootPath+=controllerType+"/";
+        }
         var pathFromEntity = this.getClass().getAnnotation(EntityRootPath.class);
         if (pathFromEntity != null) {
             entityRootPath += pathFromEntity.value();

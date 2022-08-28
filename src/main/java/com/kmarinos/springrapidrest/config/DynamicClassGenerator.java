@@ -22,6 +22,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Transient;
+import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.annotation.AnnotationDescription;
 import net.bytebuddy.description.type.TypeDescription;
@@ -35,17 +36,14 @@ import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.matcher.ElementMatchers;
 import org.hibernate.annotations.Target;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 class DynamicClassGenerator {
 
-
-    private static final Logger LOG = LoggerFactory.getLogger(DynamicClassGenerator.class);
     private List<Class<?>> entityClasses = new ArrayList<>();
     public DynamicClassGenerator(){
         Reflections reflections = new Reflections("com.kmarinos.springrapidrest");
@@ -62,10 +60,10 @@ class DynamicClassGenerator {
 
     public Optional<Class<?>> createJpaEntity(String entityClassName, Class<?> entityType, Class<?> entityListener) {
         if (classFileExists(entityClassName)) {
-            LOG.info("The Entity class " + entityClassName + " already exists, not creating a new one");
+            log.info("The Entity class " + entityClassName + " already exists, not creating a new one");
             return Optional.empty();
         }
-        LOG.info("Creating new Entity class: {}...", entityClassName);
+        log.info("Creating new Entity class: {}...", entityClassName);
         var tableName = camelToSnake(entityClassName.substring(entityClassName.lastIndexOf(".")+1).trim());
         Unloaded<?> generatedClass = null;
         var builder = new ByteBuddy().with(TypeValidation.DISABLED)
@@ -78,12 +76,12 @@ class DynamicClassGenerator {
 
                 .name(entityClassName);
         for(Field field : entityType.getDeclaredFields()){
-            LOG.info("Trying for field {}",field.getName());
+            log.info("Trying for field {}",field.getName());
             //ignore transient fields
             if(!field.isAnnotationPresent(Transient.class)){
-                LOG.info("Field is not transient");
+                log.info("Field is not transient");
                 if(field.isAnnotationPresent(OneToMany.class)||field.isAnnotationPresent(ManyToMany.class)){
-                    LOG.info("Field is collection. Skipping...");
+                    log.info("Field is collection. Skipping...");
                     continue;
                 }
                 //only save the id of other entities
@@ -91,13 +89,13 @@ class DynamicClassGenerator {
 
                  builder =builder.defineProperty(field.getName()+"Id",TypeDescription.STRING)
                          .annotateField(AnnotationDescription.Builder.ofType(Column.class).define("name",camelToSnake(field.getName()+"Id")).build());
-                    LOG.info("Set only id because field is entity");
+                    log.info("Set only id because field is entity");
                 }else{
                     builder =builder.defineProperty(field.getName(),field.getType()).annotateField(field.getAnnotations());
-                    LOG.info("Set field");
+                    log.info("Set field");
                 }
             }else{
-                LOG.info("Field is transient. Skipping...");
+                log.info("Field is transient. Skipping...");
             }
         }
         generatedClass=builder.make();
@@ -126,11 +124,11 @@ class DynamicClassGenerator {
      */
     public Optional<Class<?>> createJpaRepository(Class<?> entityClass, String repositoryClassName) {
         if (classFileExists(repositoryClassName)) {
-            LOG.info("The Repository class " + repositoryClassName + " already exists, not creating a new one");
+            log.info("The Repository class " + repositoryClassName + " already exists, not creating a new one");
             return Optional.empty();
         }
 
-        LOG.info("Creating new Repo class: {}...", repositoryClassName);
+        log.info("Creating new Repo class: {}...", repositoryClassName);
 
         Generic crudRepo = Generic.Builder.parameterizedType(CrudRepository.class, entityClass, String.class).build();
 
@@ -149,10 +147,10 @@ class DynamicClassGenerator {
     }
     public Optional<Class<?>> createEntityListener(String listenerToCreate,Class<?> historyClass){
         if (classFileExists(listenerToCreate)) {
-            LOG.info("The Repository class " + listenerToCreate + " already exists, not creating a new one");
+            log.info("The Repository class " + listenerToCreate + " already exists, not creating a new one");
             return Optional.empty();
         }
-        LOG.info("Creating listener {}...",listenerToCreate);
+        log.info("Creating listener {}...",listenerToCreate);
         Unloaded<?> generatedClass = new ByteBuddy()
                 .with(TypeValidation.DISABLED)
                 .subclass(TypeDescription.Generic.Builder.parameterizedType(HistoryChangeListener.class, historyClass).build(), ConstructorStrategy.Default.IMITATE_SUPER_CLASS)
@@ -165,7 +163,7 @@ class DynamicClassGenerator {
     }
     public Optional<Class<?>> createEntityFactoryImpl(String className){
         if (classFileExists(className)) {
-            LOG.info("The Repository class " + className + " already exists, not creating a new one");
+            log.info("The Repository class " + className + " already exists, not creating a new one");
             return Optional.empty();
         }
         Unloaded<?> generatedClass = new ByteBuddy()

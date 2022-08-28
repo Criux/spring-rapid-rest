@@ -5,9 +5,8 @@ import com.kmarinos.springrapidrest.domain.model.TrackedEntity;
 import java.util.Optional;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -17,9 +16,8 @@ import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 
 
 @Configuration
+@Slf4j
 public class DynamicJpaBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DynamicJpaBeanFactoryPostProcessor.class);
 
     private static final String ENTITY_CLASS_SUFFIX = "History";
     private static final String LISTENER_CLASS_SUFFIX = "Listener";
@@ -40,10 +38,9 @@ public class DynamicJpaBeanFactoryPostProcessor implements BeanFactoryPostProces
             var entityListener = dynamicClassGenerator.createEntityListener(packageName + ".entitylistener." + listenerNameToCreate, referenceEntity);
 
             if (entityListener.isEmpty()) {
-                LOG.error("Error while creating listener");
                 return;
             } else {
-                LOG.info("Created listener {}", entityListener.get().getName());
+                log.info("Created listener {}", entityListener.get().getName());
             }
 
             Optional<Class<?>> entityClass = null;
@@ -60,7 +57,7 @@ public class DynamicJpaBeanFactoryPostProcessor implements BeanFactoryPostProces
                 return;
             }
 
-            LOG.info("Created the Entity class {} and Repository class {} successfully", classNameToCreate,
+            log.info("Created the Entity class {} and Repository class {} successfully", classNameToCreate,
                     repoNameToCreate);
 
             registerJpaRepositoryFactoryBean(repoClass.get(), (DefaultListableBeanFactory) beanFactory);
@@ -89,7 +86,7 @@ public class DynamicJpaBeanFactoryPostProcessor implements BeanFactoryPostProces
                 .rootBeanDefinition(JpaRepositoryFactoryBean.class).addConstructorArgValue(jpaRepositoryClass);
         defaultListableBeanFactory.registerBeanDefinition(beanName, beanDefinitionBuilder.getBeanDefinition());
 
-        LOG.info("Registered the {} bean for {} successfully", JpaRepositoryFactoryBean.class.getSimpleName(),
+        log.info("Registered the {} bean for {} successfully", JpaRepositoryFactoryBean.class.getSimpleName(),
                 beanName);
     }
 

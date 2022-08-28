@@ -29,10 +29,10 @@ public class EntityHistoryChangeRequest<T extends TrackedEntity> {
     @JsonAnyGetter
     @JsonIgnore
             @Builder.Default
-    Map<String,String> values= new HashMap<>();
+    Map<String,Object> values= new HashMap<>();
     @JsonAnySetter
     public void setValue(String name,Object value){
-        values.put(name,value==null?null:String.valueOf(value));
+        values.put(name, value);
     }
 
 }

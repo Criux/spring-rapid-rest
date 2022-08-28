@@ -2,6 +2,7 @@ package com.kmarinos.springrapidrest.converter;
 
 import com.kmarinos.springrapidrest.domain.model.TrackedEntity;
 import com.kmarinos.springrapidrest.domain.model.TrackedEntityHistory;
+import com.kmarinos.springrapidrest.exceptionHandling.exceptions.OperationNotAllowedException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.function.Consumer;
@@ -92,7 +93,7 @@ public abstract class HistoryToStateConverter<T extends TrackedEntity> {
 
     public void validate(TrackedEntityHistory<T> history, Predicate<T> condition, Function<T, String> errorMessageProvider) {
         if (history.getEntity() == null || !condition.test(history.getEntity())) {
-            throw new IllegalStateException(errorMessageProvider.apply(history.getEntity()));
+            throw new OperationNotAllowedException(errorMessageProvider.apply(history.getEntity()));
         }
     }
 
