@@ -57,7 +57,7 @@ public class Car extends TrackedEntity {
 
 $$\textcolor{yellow}{\text{Hello World}}$$
 sup
-{: style="color:rgb(107,79,187)"}
+{: style="color:rgb(107,79,187)" }
 
 ## How to use
 
