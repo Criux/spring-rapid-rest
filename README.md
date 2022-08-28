@@ -19,7 +19,7 @@ endpoints to function.
 
 You can find the required classes for an example entity *Car* in package [example/car](src/main/java/com/kmarinos/springrapidrest/example/car).
 On startup some entities with dummy values are persisted to the database so that the endpoints don't return empty values (see [InitExample.java](src/main/java/com/kmarinos/springrapidrest/example/InitExample.java)).
-For pre-configured examples run the [postman collection](postman_collection.json).
+For pre-configured examples run the [postman collection](docs/postman_collection.json).
 
 ### The Entity [Car.java](src/main/java/com/kmarinos/springrapidrest/example/car/Car.java)
 
