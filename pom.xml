@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.kmarinos</groupId>
 	<artifactId>spring-rapid-rest</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>spring-rapid-rest</name>
 	<description>Rapid prototyping of a REST Service with Spring</description>
 	<properties>

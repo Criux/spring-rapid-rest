@@ -7,6 +7,23 @@
 	"item": [
 		{
 			"name": "GET All Entities",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response array is not empty\", function () {\r",
+							"    pm.expect(JSON.parse(pm.response.text()).length).to.not.equal(0)\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -34,6 +51,21 @@
 							"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/api/v1/\"+pm.collectionVariables.get(\"entity\")+\"s/\",(error,response)=>{\r",
 							"    pm.collectionVariables.set(\"id\", response.json()[0].id);\r",
 							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Entity Id is the same as in the request\", function () {\r",
+							"    pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get(\"id\"))\r",
+							"});\r",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -65,7 +97,26 @@
 					"script": {
 						"exec": [
 							"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/api/v1/\"+pm.collectionVariables.get(\"entity\")+\"s/\",(error,response)=>{\r",
-							"    pm.collectionVariables.set(\"id\", response.json()[0].id);\r",
+							"    pm.collectionVariables.set(\"id\", response.json()[1].id);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response array is not empty\", function () {\r",
+							"    pm.expect(JSON.parse(pm.response.text()).length).to.not.equal(0)\r",
+							"});\r",
+							"pm.test(\"All History Entries refer to the correct entity\",() => {\r",
+							"    _.each(pm.response.json(), (history) => {\r",
+							"        pm.expect(history.entity.id).to.eq(pm.collectionVariables.get(\"id\"))\r",
+							"    })\r",
 							"});"
 						],
 						"type": "text/javascript"
@@ -93,6 +144,29 @@
 		},
 		{
 			"name": "Create Entity",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Entity attributes are set correctly\",function(){\r",
+							"    pm.expect(jsonData.id).to.not.undefined;\r",
+							"    pm.expect(jsonData.manufacturer).to.eq(\"Mercedes Benz\")\r",
+							"    pm.expect(jsonData.model).to.eq(\"EQA 300 4MATIC\")\r",
+							"    pm.expect(jsonData.year).to.eq(2021)\r",
+							"    pm.expect(jsonData.weight).to.eq(2005.0)\r",
+							"    pm.expect(jsonData.color).to.eq(\"red\")\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -128,6 +202,25 @@
 						"exec": [
 							"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/api/v1/\"+pm.collectionVariables.get(\"entity\")+\"s/\",(error,response)=>{\r",
 							"    pm.collectionVariables.set(\"id\", response.json()[0].id);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Entity attributes are set correctly\",function(){\r",
+							"    pm.expect(jsonData.id).to.not.undefined;\r",
+							"    pm.expect(jsonData.model).to.eq(\"B Class\")\r",
+							"    pm.expect(jsonData.weight).to.eq(1285.0)\r",
+							"    pm.expect(jsonData.color).to.eq(\"blue\")\r",
 							"});"
 						],
 						"type": "text/javascript"
@@ -170,6 +263,23 @@
 						"exec": [
 							"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/api/v1/\"+pm.collectionVariables.get(\"entity\")+\"s/\",(error,response)=>{\r",
 							"    pm.collectionVariables.set(\"id\", response.json()[0].id);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/api/v1/car/\"+pm.collectionVariables.get(\"id\"), (error,response)=>{\r",
+							"    pm.test(\"Item does not exist anymore\", function () {\r",
+							"        pm.expect(response.code).to.not.eq(200)\r",
+							"    })\r",
 							"});"
 						],
 						"type": "text/javascript"
