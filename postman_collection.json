@@ -1,0 +1,234 @@
+{
+	"info": {
+		"_postman_id": "90e6bac7-b2ec-4d1c-88f4-fc25c747c1ed",
+		"name": "Spring Rapid REST",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET All Entities",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/{{entity}}s",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"{{entity}}s"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Single Entity",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/api/v1/\"+pm.collectionVariables.get(\"entity\")+\"s/\",(error,response)=>{\r",
+							"    pm.collectionVariables.set(\"id\", response.json()[0].id);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/{{entity}}/{{id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"{{entity}}",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Entity History",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/api/v1/\"+pm.collectionVariables.get(\"entity\")+\"s/\",(error,response)=>{\r",
+							"    pm.collectionVariables.set(\"id\", response.json()[0].id);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/{{entity}}/{{id}}/history",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"{{entity}}",
+						"{{id}}",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Entity",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"manufacturer\":\"Mercedes Benz\",\r\n    \"model\":\"EQA 300 4MATIC\",\r\n    \"year\": 2021,\r\n    \"weight\":2005.0,\r\n    \"color\":\"red\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/{{entity}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"{{entity}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Entity",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/api/v1/\"+pm.collectionVariables.get(\"entity\")+\"s/\",(error,response)=>{\r",
+							"    pm.collectionVariables.set(\"id\", response.json()[0].id);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"model\":\"B Class\",\r\n    \"weight\": 1285.0,\r\n    \"color\":\"blue\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/{{entity}}/{{id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"{{entity}}",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Entity",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/api/v1/\"+pm.collectionVariables.get(\"entity\")+\"s/\",(error,response)=>{\r",
+							"    pm.collectionVariables.set(\"id\", response.json()[0].id);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/{{entity}}/{{id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"{{entity}}",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "entity",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "id",
+			"value": ""
+		}
+	]
+}
