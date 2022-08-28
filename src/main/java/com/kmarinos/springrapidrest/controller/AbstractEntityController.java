@@ -19,6 +19,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,20 +31,19 @@ import org.springframework.web.util.pattern.PathPatternParser;
 
 @Slf4j
 public abstract class AbstractEntityController<T extends TrackedEntity> {
-    protected final TrackedEntityHistoryRepository<T> trackedEntityHistoryRepository;
-    protected final EntityDAO<T> entityDAO;
-    protected final EntityHistoryDAO<T> entityHistoryDAO;
-    private final RequestMappingHandlerMapping requestMappingHandlerMapping;
+    @Autowired
+    protected TrackedEntityHistoryRepository<T> trackedEntityHistoryRepository;
+    @Autowired
+    protected  EntityDAO<T> entityDAO;
+    @Autowired
+    protected EntityHistoryDAO<T> entityHistoryDAO;
+    @Autowired
+    private RequestMappingHandlerMapping requestMappingHandlerMapping;
     private RequestMappingInfo.BuilderConfiguration requestMappingOptions;
     protected Class<T> entityClass;
 
-    protected AbstractEntityController(TrackedEntityHistoryRepository<T> trackedEntityHistoryRepository,
-                                       EntityDAO<T> entityDAO, EntityHistoryDAO<T> entityHistoryDAO,
-                                       RequestMappingHandlerMapping requestMappingHandlerMapping) {
-        this.trackedEntityHistoryRepository = trackedEntityHistoryRepository;
-        this.entityDAO = entityDAO;
-        this.entityHistoryDAO = entityHistoryDAO;
-        this.requestMappingHandlerMapping = requestMappingHandlerMapping;
+    @PostConstruct
+    public void init() throws NoSuchMethodException {
         try{
             entityClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass())
                 .getActualTypeArguments()[0];
@@ -51,11 +51,6 @@ public abstract class AbstractEntityController<T extends TrackedEntity> {
         }catch (ClassCastException ex){
             entityClass= (Class<T>) TrackedEntity.class;
         }
-
-    }
-
-    @PostConstruct
-    public void init() throws NoSuchMethodException {
         requestMappingOptions = new RequestMappingInfo.BuilderConfiguration();
         requestMappingOptions.setPatternParser(new PathPatternParser());
         var rootPathService = this.findEntityPath("");
